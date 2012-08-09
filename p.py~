@@ -1,0 +1,66 @@
+#from board import *
+# from board import Board
+import board
+import game
+
+help_message = "Each player should place a piece writing\n" +\
+    "i j; you can also write 'pass' or 'resign'\n" +\
+    "Typing 'result' shows the current result."
+    
+class Runner:
+    def __init__(self):
+        print("Enter your names:")
+        black_name = input("Black player: ")
+        white_name = input("White player: ")
+        board_size = input("Enter board size: ")
+        self.game = game.Game(black_name, white_name, board_size)
+        print(help_message)
+        
+    def __init__(self, game):
+        self.game = game
+        
+    def play(self):
+        #while command != 'resign' and game.passes != 2):
+        while True:
+            
+            command = input(self.game.players[self.game.turn].name + ': ')
+            if command == 'help':
+                print(help_message)
+            elif command == 'result':
+                self.game.print_result()
+            elif command == 'resign':
+                print('Winner is ', )
+                break
+            elif command == 'pass':
+                self.game.save_pass()
+                if self.game.passes == 2:
+                    break        
+            else:
+                try:
+                    command = list(map(int, command.split()))
+                    #print(*command)
+                    if len(command) != 2:
+                        print('Invalid arguments')
+                        continue
+                    i = command[0]
+                    j = command[1]
+                    if i < 1 or i > self.game.board.size or \
+                        j < 1 or j > self.game.board.size:
+                        print('Args out of range')
+                        continue
+                    if self.game.place_at(i, j) == False:
+                        print('Illegal move')
+                    else:
+                        self.game.board.print_board()
+                except ValueError:
+                    print('Invalid command')    
+            
+        self.game.print_result()
+        
+
+if __name__ == '__main__':
+    
+    
+    
+    
+    

@@ -1,0 +1,8 @@
+Args out of range
+Args out of range
+Invalid arguments
+Invalid command
+Each player should place a piece writing
+i j; you can also write 'pass' or 'resign'
+Typing 'result' shows the current result.
+w lost the game.

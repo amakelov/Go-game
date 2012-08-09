@@ -1,0 +1,209 @@
+import unittest
+import board
+import testboard
+
+
+class RulesTestCase(unittest.TestCase):
+    
+    def test_capture(self):
+        """
+        Test capturing. Use constructor for TestBoard with default
+        previous_matrix = None, so ko rule is not tested here.
+        (the move is allowed).
+        
+        """
+        inputs = [[[1, 2, 0], \
+                   [0, 0, 0], \
+                   [0, 0, 0]],
+                   
+                  [[0, 2, 1], \
+                   [2, 1, 0], \
+                   [0, 2, 1]],
+                   
+                  [[0, 0, 1, 1, 0], \
+                   [2, 2, 0, 2, 0], \
+                   [2, 1, 2, 1, 2], \
+                   [1, 0, 1, 1, 2], \
+                   [1, 1, 2, 2, 0]],
+                   
+                  [[0, 0, 0, 0, 0], \
+                   [0, 0, 1, 0, 0], \
+                   [0, 2, 2, 2, 0], \
+                   [0, 0, 1, 1, 2], \
+                   [0, 1, 2, 2, 0]],
+                   
+                  [[0, 0, 0, 0, 0], \
+                   [0, 0, 1, 0, 0], \
+                   [0, 2, 2, 2, 0], \
+                   [0, 0, 1, 1, 2], \
+                   [0, 1, 0, 0, 1]]]
+                   
+                   
+        moves = [(2, 1, 2), (2, 3, 2), (4, 2, 2), (5, 5, 1), (5, 4, 2)]
+        prisoners = (1, 3, 7, 2, 1)           
+       
+        outputs = [[[0, 2, 0], \
+                    [2, 0, 0], \
+                    [0, 0, 0]],
+                    
+                   [[0, 2, 0], \
+                    [2, 0, 2], \
+                    [0, 2, 0]],
+                   
+                  [[0, 0, 1, 1, 0], \
+                   [2, 2, 0, 2, 0], \
+                   [2, 0, 2, 0, 2], \
+                   [0, 2, 0, 0, 2], \
+                   [0, 0, 2, 2, 0]],
+                   
+                  [[0, 0, 0, 0, 0], \
+                   [0, 0, 1, 0, 0], \
+                   [0, 2, 2, 2, 0], \
+                   [0, 0, 1, 1, 2], \
+                   [0, 1, 0, 0, 1]],
+                   
+                  [[0, 0, 0, 0, 0], \
+                   [0, 0, 1, 0, 0], \
+                   [0, 2, 2, 2, 0], \
+                   [0, 0, 1, 1, 2], \
+                   [0, 1, 0, 2, 0]]]
+                                       
+        for i in range(0, len(inputs)):
+            tb = testboard.TestBoard(inputs[i])
+            self.assertEqual(prisoners[i], tb.place_at(*(moves[i])))
+            self.assertTrue(tb.assert_same_colors(outputs[i]))
+            
+    def test_suicide(self):
+        """
+        Ban suicide.
+        
+        """
+        inputs = [[[0, 2, 2, 2], \
+                   [2, 2, 1, 1], \
+                   [0, 1, 1, 2], \
+                   [0, 1, 2, 0]]]
+        
+        moves = [(4, 4, 2)]
+        
+        for i in range(0, len(inputs)):
+            tb = testboard.TestBoard(inputs[i])
+            self.assertEqual(board.SUICIDE, tb.place_at(*(moves[i])))
+            
+        # Allowed moves: (not suicides)
+        
+        inputs = [[[0, 2, 2, 2], \
+                   [2, 2, 1, 1], \
+                   [0, 1, 1, 2], \
+                   [0, 0, 2, 0]]]
+        
+        moves = [(4, 4, 2)]
+        
+        for i in range(0, len(inputs)):
+            tb = testboard.TestBoard(inputs[i])
+            self.assertNotEqual(board.SUICIDE, tb.place_at(*(moves[i])))        
+       
+                   
+            
+    def test_ko_rule(self):
+        """
+        Ban repetition. Use TestBoard constructor with previous_matrix.
+        
+        """
+        prev_boards = [[[0, 0, 0, 0, 0], \
+                        [0, 1, 2, 0, 0], \
+                        [1, 0, 1, 2, 0], \
+                        [0, 1, 2, 0, 0], \
+                        [0, 0, 0, 0, 0]]]
+        
+        inputs =  [[[0, 0, 0, 0, 0], \
+                    [0, 1, 2, 0, 0], \
+                    [1, 2, 0, 2, 0], \
+                    [0, 1, 2, 0, 0], \
+                    [0, 0, 0, 0, 0]]]
+        
+        moves = [(3, 3, 1)]
+        
+        for i in range(0, len(inputs)):
+            tb = testboard.TestBoard(inputs[i], previous_matrix=prev_boards[i])
+            self.assertEqual(board.REPETITION, tb.place_at(*(moves[i])))
+            self.assertTrue(tb.assert_same_colors(inputs[i]))
+            
+    def test_ko_rule_1(self):
+        """
+        Ban repetition. Make two consequent moves.
+        
+        """
+        inputs =  [[[0, 0, 0, 0, 0], \
+                    [0, 1, 2, 0, 0], \
+                    [1, 0, 1, 2, 0], \
+                    [0, 1, 2, 0, 0], \
+                    [0, 0, 0, 0, 0]]]
+        
+        moves = [(3, 2, 2), (3, 3, 1)]
+        
+        for i in range(0, len(inputs)):
+            tb = testboard.TestBoard(inputs[i])
+            tb.place_at(*(moves[i]))
+            self.assertEqual(board.REPETITION, tb.place_at(*(moves[i + 1])))
+            
+            
+    def test_get_result(self):
+        inputs = [[[0, 1, 0, 0, 1, 1, 2, 0, 0], \
+                   [1, 0, 0, 1, 1, 2, 0, 0, 0], \
+                   [2, 1, 1, 1, 2, 2, 2, 0, 0], \
+                   [2, 2, 0, 2, 2, 2, 0, 2, 0], \
+                   [0, 0, 2, 0, 1, 1, 2, 0, 0], \
+                   [2, 2, 2, 2, 1, 0, 1, 2, 2], \
+                   [2, 2, 1, 1, 0, 1, 0, 1, 2], \
+                   [2, 1, 1, 0, 0, 0, 0, 1, 1], \
+                   [1, 1, 0, 0, 0, 0, 0, 0, 0]], \
+                   
+                  [[0, 1, 1, 2, 0, 2, 1, 0, 1], \
+                   [1, 0, 1, 2, 0, 2, 1, 1, 0], \
+                   [1, 1, 2, 2, 0, 2, 2, 1, 1], \
+                   [2, 2, 2, 0, 0, 0, 2, 1, 0], \
+                   [0, 0, 0, 0, 0, 0, 2, 1, 1], \
+                   [2, 2, 0, 0, 0, 0, 2, 2, 2], \
+                   [1, 2, 2, 2, 2, 0, 2, 1, 1], \
+                   [0, 1, 1, 1, 2, 0, 2, 1, 0], \
+                   [1, 1, 0, 1, 2, 0, 2, 1, 1]],
+                   
+                  [[0, 2, 0, 0, 0, 0, 0, 0, 0], \
+                   [2, 1, 2, 2, 0, 0, 0, 0, 0], \
+                   [2, 1, 1, 1, 2, 0, 0, 0, 0], \
+                   [2, 1, 0, 1, 2, 0, 0, 0, 0], \
+                   [2, 1, 1, 2, 0, 0, 0, 0, 0], \
+                   [0, 2, 2, 0, 2, 2, 2, 0, 0], \
+                   [0, 0, 0, 2, 1, 1, 1, 2, 0], \
+                   [0, 0, 0, 2, 1, 0, 1, 2, 0], \
+                   [0, 0, 0, 2, 1, 0, 1, 2, 0]],
+                   
+                  [[2, 2, 2, 2], \
+                   [2, 1, 1, 1], \
+                   [2, 1, 0, 0], \
+                   [2, 1, 0, 0]]]
+                   
+                   
+        results = [[[0, 0],[19, 13]], [[0, 6], [6, 25]], \
+            [[0, 15], [0, 60]], [[0, 5], [0, 9]]]
+        for i in range(0, len(inputs)):
+            print('test ', i)
+            tb = testboard.TestBoard(inputs[i])
+            self.assertEqual(results[i], tb.get_result())
+            #self.assertEqual(results[i], tb.get_result())
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+
+if __name__ == "__main__":
+    unittest.main()
+        

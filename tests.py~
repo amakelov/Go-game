@@ -1,0 +1,27 @@
+from board import *
+
+
+def _are_equal_boards(b1, b2):
+    zb = zip(b1, b2)
+    for row in zb:
+        for el in row:
+            print(el[0], el[1])
+            
+
+if __name__ == "__main__":
+    a = [[Square(0) for i in range(0, 5)] \
+            for j in range(0, 5)]
+    b = list(list(Square(sq.color) for sq in row) for row in a)
+    
+    c = [[1,2],[3,4]]
+    e = [[5,6],[7,8]]
+    d = list(list(row) for row in c)
+    c[0][0] = 5
+    print('d', d[0][0])
+    
+    a[0][0].color = 1
+    print(b[0][0].color)
+    
+    c = [[1,2],[3,4]]
+    e = [[5,6],[7,8]]
+    _are_equal_boards(c, e)
